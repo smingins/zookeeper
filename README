@@ -40,7 +40,7 @@ Steps I followed for the zookeeper-dev.jar included:
 
 == INSTALL:
 
-jruby -S gem install zookeeper-0.1.gem
+jruby -S  gem install smingins-zookeeper --source=http://gems.github.com/
 
 == LICENSE:
 
