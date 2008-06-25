@@ -23,8 +23,3 @@ SPEC = Gem::Specification.new do |s|
   s.rubygems_version = %q{1.1.0}
   s.summary =  %q{A JRuby interface to the Java ZooKeeper server.}
 end
-
-if $0 == __FILE__
-  Gem::manage_gems
-  Gem::Builder.new(SPEC).build
-end
