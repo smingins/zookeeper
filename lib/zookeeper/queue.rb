@@ -4,6 +4,7 @@ class ZooKeeper
 
     def initialize(address, name)
       super(address)
+      until @@zk.connected? do; end
       @root = name
       if @@zk && @@zk.exists(@root).nil?
         @@zk.create(:path => @root, :data => "") 
@@ -19,14 +20,14 @@ class ZooKeeper
     def consume
       @@monitor.synchronize do
         loop do
-          list = @@zk.get_children(:path => @root, :watch => true)
+          list = @@zk.children(:path => @root, :watch => true)
 
           if list.empty?
            	$LOG.info 'Queue empty, going to wait'
             @@consume.wait
           else
             minimum_node = list.inject {|e1, e2| e2.delete("element").to_i < e1.delete("element").to_i ? e2 : e1 }
-            data = @@zk.get_data("#{@root}/#{minimum_node}")
+            data, stat = @@zk.get("#{@root}/#{minimum_node}")
             @@zk.delete(:path => "#{@root}/#{minimum_node}", :version => 0)
             return data
           end
@@ -35,7 +36,7 @@ class ZooKeeper
     end
     
     def empty?
-      @@zk.get_children(:path => @root).empty?
+      @@zk.children(:path => @root).empty?
     end
     
     def stop

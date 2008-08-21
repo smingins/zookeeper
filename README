@@ -4,7 +4,7 @@ zookeeper
 
 == DESCRIPTION:
 
-JRuby Interface to Yahoo's ZooKeeper http://zookeeper.wiki.sourceforge.net/
+Ruby Interface to Yahoo's ZooKeeper http://zookeeper.wiki.sourceforge.net/
 
 
 == FEATURES/PROBLEMS:
@@ -15,7 +15,7 @@ ACL issues exist in ZooKeeper that have been patched, but patch only seems to wo
 
 == TODO
 
-Add support for Ruby using ZooKeeper C API's
+Extend support for Ruby using ZooKeeper C API's
 
 == SYNOPSIS:
 
@@ -30,17 +30,19 @@ See spec/zookeeper_spec for expected use and behaviour.
 
 ZooKeeper installed and running.
 
-Steps I followed for the zookeeper-dev.jar included:
+I built zookeeper from source with the ACL patch https://issues.apache.org/jira/secure/attachment/12384350/acl_3.patch applied
 
-1. svn co https://zookeeper.svn.sourceforge.net/svnroot/zookeeper/trunk zookeeper
-2. apply patch https://issues.apache.org/jira/secure/attachment/12384350/acl_3.patch
-3. cd zookeeper/zookeeper (where ant make file build.xml is)
-4. ant (default target is jar)
-5. zookeeper-dev.jar should be build it current directory
+For MRI version, ZooKeeper C client library (http://zookeeper.sourceforge.net/)
 
 == INSTALL:
 
+gem install smingins-zookeeper --source=http://gems.github.com/
+
 jruby -S  gem install smingins-zookeeper --source=http://gems.github.com/
+
+== TESTS:
+
+To run specs for MRI version execute extconf.rb to create makefile and then run make to create zookeeper_c.bundle, then run specs.
 
 == LICENSE:
 

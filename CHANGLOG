@@ -1,1 +1,8 @@
 v0.1 initial release - JRuby only
+
+v0.2 refactor madness! - Lets Merge Zookeeper-Client C code
+
+- merged some code from http://github.com/myelin/zookeeper_client/tree/master to move towards one API interface to support JRuby and MRI
+- changed methods to support one interface
+- wrapped any returned objects from JRuby to be plain old Ruby objects, e.g. Stat, WatcherEvent, ACL etc
+- gemspec supports building either MRI or JRuby version

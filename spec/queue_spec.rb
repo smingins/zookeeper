@@ -3,7 +3,6 @@ require File.join(File.dirname(__FILE__), %w[spec_helper])
 describe Queue do
   
   before(:each) do
-    ZooKeeperTestServer.start(2181)
     @queue = ZooKeeper::Queue.new("localhost:2181", "/queue1")  
     @zk = ZooKeeper.new(:host => "localhost:2181", :watcher => SilentWatcher.new)
     wait_until{ @queue.active? && @zk.connected? }
@@ -13,7 +12,6 @@ describe Queue do
     @queue.stop
     @zk.close
     wait_until{ @queue.stopped? && @zk.closed? }
-    ZooKeeperTestServer.stop
   end
   
   it "should have created a queue path" do
@@ -31,14 +29,14 @@ describe Queue do
   
   it "should produce 5 items" do
     5.times { |i| @queue.produce(i.to_s) }
-    @zk.get_children(:path => "/queue1").size.should == 5
+    @zk.children(:path => "/queue1").size.should == 5
     @queue.should_not be_empty
   end
   
   it "should consume from a populated queue" do
     5.times { |i| @queue.produce(i.to_s) }
     @queue.consume
-    @zk.get_children(:path => "/queue1").size.should == 4
+    @zk.children(:path => "/queue1").size.should == 4
   end
   
   

@@ -1,58 +1,38 @@
-module JavaIO     
-   include_package "java.io"
- end
- 
 class ZooKeeperTestServer
-  
-  DEFAULT_TICK_TIME = 3000
 
-  def self.start(port)
-    @server = ZooKeeperTestServer.new(port)
-    @server.start
-    wait_until { @server.is_running? }
-    return @server
-  end
+  @@log_level_set = false
   
+  def self.running?
+    `ps | grep zookeeper`.include?("zookeeper-2.2.1")
+  end
+
+  def self.start(background=true)
+    set_log_level
+    FileUtils.remove_dir("/tmp/zookeeper", true)
+    FileUtils.mkdir_p("/tmp/zookeeper/server1/data")
+    if background
+      thread = Thread.new do
+        `./spec/zookeeper-2.2.1/bin/zkServer.sh start`
+      end
+    else
+      `./spec/zookeeper-2.2.1/bin/zkServer.sh start`
+    end
+  end
+
   def self.stop
-    @server.stop
-    wait_until { !@server.is_running? }
+    `./spec/zookeeper-2.2.1/bin/zkServer.sh stop`
+    FileUtils.remove_dir("/tmp/zookeeper", true)
   end
   
-  def initialize(port, directory='zookeeper_test_server')
-    @port = port
-    @directory = "#{directory}_#{port}"
-  end
-  
-  def start
-    create_server_directory
-    @zks = create_zookeeper_server
-    @thread =  Java::NIOServerCnxn::Factory.new(@port)
-    @thread.startup(@zks)
-  end
-  
-  def stop
-    @thread.shutdown()
-    remove_server_directory
-  end
-  
-  def is_running?
-    @zks.is_running
-  end
-  
-  private
-  
-  def create_server_directory
-    FileUtils.remove_dir(@directory, true)
-    FileUtils.mkdir(@directory)
-  end
-  
-  def remove_server_directory
-    FileUtils.remove_dir(@directory, true)
-  end
-  
-  def create_zookeeper_server
-    Java::ServerStats.registerAsConcrete()
-    return Java::ZooKeeperServer.new(JavaIO::File.new(@directory), JavaIO::File.new(@directory), DEFAULT_TICK_TIME, Java::ZooKeeperServer::BasicDataTreeBuilder.new)
+  def self.set_log_level
+    return if @@log_level_set
+    if defined?(JRUBY_VERSION)
+      require 'zookeeper_j/log4j-1.2.15.jar'
+      import org.apache.log4j.Logger
+      import org.apache.log4j.Level
+      Logger.getRootLogger().set_level(Level::OFF)
+    end
+     @@log_level_set = true
   end
   
 end
